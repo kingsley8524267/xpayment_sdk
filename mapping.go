@@ -13,16 +13,17 @@ func createToProto(req CreatePaymentOrderRequest) (*pb.CreatePaymentOrderRequest
 		return nil, err
 	}
 	return &pb.CreatePaymentOrderRequest{
-		MerchantCode:    req.MerchantCode,
-		MerchantOrderId: req.MerchantOrderID,
-		UserId:          req.UserID,
-		OrderAmount:     req.OrderAmount,
-		OrderCurrency:   req.OrderCurrency,
-		PaymentCurrency: req.PaymentCurrency,
-		ChannelCode:     req.ChannelCode,
-		IdempotencyKey:  req.IdempotencyKey,
-		CallbackBaseUrl: req.CallbackBaseURL,
-		MetadataJson:    metadata,
+		MerchantCode:     req.MerchantCode,
+		MerchantOrderId:  req.MerchantOrderID,
+		UserId:           req.UserID,
+		OrderAmount:      req.OrderAmount,
+		OrderCurrency:    req.OrderCurrency,
+		PaymentCurrency:  req.PaymentCurrency,
+		ChannelCode:      req.ChannelCode,
+		IdempotencyKey:   req.IdempotencyKey,
+		CallbackBaseUrl:  req.CallbackBaseURL,
+		SuccessReturnUrl: req.SuccessReturnURL,
+		MetadataJson:     metadata,
 	}, nil
 }
 

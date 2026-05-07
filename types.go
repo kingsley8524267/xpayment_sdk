@@ -36,16 +36,17 @@ type Client interface {
 }
 
 type CreatePaymentOrderRequest struct {
-	MerchantCode    string  `json:"merchantCode"`
-	MerchantOrderID string  `json:"merchantOrderId"`
-	UserID          string  `json:"userId,omitempty"`
-	OrderAmount     float64 `json:"orderAmount"`
-	OrderCurrency   string  `json:"orderCurrency"`
-	PaymentCurrency string  `json:"paymentCurrency"`
-	ChannelCode     string  `json:"channelCode"`
-	IdempotencyKey  string  `json:"idempotencyKey,omitempty"`
-	CallbackBaseURL string  `json:"callbackBaseUrl,omitempty"`
-	Metadata        JSONMap `json:"metadata,omitempty"`
+	MerchantCode     string  `json:"merchantCode"`
+	MerchantOrderID  string  `json:"merchantOrderId"`
+	UserID           string  `json:"userId,omitempty"`
+	OrderAmount      float64 `json:"orderAmount"`
+	OrderCurrency    string  `json:"orderCurrency"`
+	PaymentCurrency  string  `json:"paymentCurrency"`
+	ChannelCode      string  `json:"channelCode"`
+	IdempotencyKey   string  `json:"idempotencyKey,omitempty"`
+	CallbackBaseURL  string  `json:"callbackBaseUrl,omitempty"`
+	SuccessReturnURL string  `json:"successReturnUrl,omitempty"`
+	Metadata         JSONMap `json:"metadata,omitempty"`
 }
 
 type GetPaymentOrderByMerchantOrderRequest struct {

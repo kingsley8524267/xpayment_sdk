@@ -18,6 +18,7 @@ import (
 
 func TestCreatePaymentOrderGRPCSuccessDoesNotCallHTTP(t *testing.T) {
 	var httpCalls atomic.Int32
+	fakeGRPC := &fakePaymentServiceClient{createResp: protoOrderFixture()}
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		httpCalls.Add(1)
 		writeEnvelope(t, w, http.StatusOK, orderFixture())
@@ -25,7 +26,7 @@ func TestCreatePaymentOrderGRPCSuccessDoesNotCallHTTP(t *testing.T) {
 	defer server.Close()
 
 	c := &client{
-		grpc:    &fakePaymentServiceClient{createResp: protoOrderFixture()},
+		grpc:    fakeGRPC,
 		http:    newHTTPClient(server.URL, server.Client()),
 		timeout: time.Second,
 	}
@@ -38,6 +39,9 @@ func TestCreatePaymentOrderGRPCSuccessDoesNotCallHTTP(t *testing.T) {
 	}
 	if httpCalls.Load() != 0 {
 		t.Fatalf("expected no http fallback calls, got %d", httpCalls.Load())
+	}
+	if got := fakeGRPC.lastCreateReq.GetSuccessReturnUrl(); got != "https://console.example.com/wallet" {
+		t.Fatalf("expected success return url to be sent over grpc, got %q", got)
 	}
 }
 
@@ -131,7 +135,8 @@ func createFixture() CreatePaymentOrderRequest {
 	return CreatePaymentOrderRequest{
 		MerchantCode: "xai-wallet", MerchantOrderID: "m1", UserID: "550e8400-e29b-41d4-a716-446655440000",
 		OrderAmount: 10, OrderCurrency: "USD", PaymentCurrency: "CNY", ChannelCode: "alipay", IdempotencyKey: "idem-1",
-		Metadata: JSONMap{"source": "test"},
+		SuccessReturnURL: "https://console.example.com/wallet",
+		Metadata:         JSONMap{"source": "test"},
 	}
 }
 
@@ -176,11 +181,13 @@ func writeEnvelopeWithCode(t *testing.T, w http.ResponseWriter, code int, messag
 }
 
 type fakePaymentServiceClient struct {
-	createResp *pb.PaymentOrderResponse
-	createErr  error
+	createResp    *pb.PaymentOrderResponse
+	createErr     error
+	lastCreateReq *pb.CreatePaymentOrderRequest
 }
 
-func (f *fakePaymentServiceClient) CreatePaymentOrder(context.Context, *pb.CreatePaymentOrderRequest, ...grpc.CallOption) (*pb.PaymentOrderResponse, error) {
+func (f *fakePaymentServiceClient) CreatePaymentOrder(_ context.Context, req *pb.CreatePaymentOrderRequest, _ ...grpc.CallOption) (*pb.PaymentOrderResponse, error) {
+	f.lastCreateReq = req
 	return f.createResp, f.createErr
 }
 
