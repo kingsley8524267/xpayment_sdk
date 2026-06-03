@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"foundation/grpcx"
+	"foundation/integration/grpcx"
 )
 
 const defaultTimeout = 5 * time.Second

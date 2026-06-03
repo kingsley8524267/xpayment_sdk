@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"foundation/grpcx"
+	"foundation/integration/grpcx"
 	pb "xpayment-svc/proto"
 )
 
