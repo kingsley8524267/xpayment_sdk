@@ -36,9 +36,11 @@ type Client interface {
 }
 
 type CreatePaymentOrderRequest struct {
-	MerchantCode     string  `json:"merchantCode"`
-	MerchantOrderID  string  `json:"merchantOrderId"`
-	TenantID         string  `json:"tenantId"`
+	MerchantCode    string `json:"merchantCode"`
+	MerchantOrderID string `json:"merchantOrderId"`
+	// TenantID is the workspace owner/billing boundary for the order.
+	TenantID string `json:"tenantId"`
+	// UserID is optional payer/actor metadata and must not be used as owner scope.
 	UserID           string  `json:"userId,omitempty"`
 	OrderAmount      float64 `json:"orderAmount"`
 	OrderCurrency    string  `json:"orderCurrency"`
@@ -59,9 +61,11 @@ type ListPaymentOrdersRequest struct {
 	Page         int
 	PageSize     int
 	MerchantCode string
-	TenantID     string
-	UserID       string
-	Status       string
+	// TenantID filters the workspace owner/billing boundary.
+	TenantID string
+	// UserID filters optional payer/actor metadata, not owner scope.
+	UserID string
+	Status string
 }
 
 type ListPaymentOrdersResponse struct {
@@ -98,11 +102,13 @@ type AvailablePaymentChannel struct {
 }
 
 type PaymentOrder struct {
-	ID                  uint64  `json:"id"`
-	PaymentNo           string  `json:"paymentNo"`
-	MerchantCode        string  `json:"merchantCode"`
-	MerchantOrderID     string  `json:"merchantOrderId"`
-	TenantID            string  `json:"tenantId"`
+	ID              uint64 `json:"id"`
+	PaymentNo       string `json:"paymentNo"`
+	MerchantCode    string `json:"merchantCode"`
+	MerchantOrderID string `json:"merchantOrderId"`
+	// TenantID is the workspace owner/billing boundary for the order.
+	TenantID string `json:"tenantId"`
+	// UserID is optional payer/actor metadata and must not be used as owner scope.
 	UserID              string  `json:"userId"`
 	OrderAmount         float64 `json:"orderAmount"`
 	OrderCurrency       string  `json:"orderCurrency"`
