@@ -150,7 +150,7 @@ func (c *client) ListPaymentOrders(ctx context.Context, req ListPaymentOrdersReq
 	}
 	callCtx, cancel := c.withTimeout(ctx)
 	resp, err := c.grpc.ListPaymentOrders(callCtx, &pb.ListPaymentOrdersRequest{
-		Page: int32(req.Page), PageSize: int32(req.PageSize), MerchantCode: req.MerchantCode, UserId: req.UserID, Status: req.Status,
+		Page: int32(req.Page), PageSize: int32(req.PageSize), MerchantCode: req.MerchantCode, TenantId: req.TenantID, UserId: req.UserID, Status: req.Status,
 	})
 	cancel()
 	if err == nil {

@@ -15,6 +15,7 @@ func createToProto(req CreatePaymentOrderRequest) (*pb.CreatePaymentOrderRequest
 	return &pb.CreatePaymentOrderRequest{
 		MerchantCode:     req.MerchantCode,
 		MerchantOrderId:  req.MerchantOrderID,
+		TenantId:         req.TenantID,
 		UserId:           req.UserID,
 		OrderAmount:      req.OrderAmount,
 		OrderCurrency:    req.OrderCurrency,
@@ -40,6 +41,7 @@ func orderFromProto(order *pb.PaymentOrderResponse) (*PaymentOrder, error) {
 		PaymentNo:           order.GetPaymentNo(),
 		MerchantCode:        order.GetMerchantCode(),
 		MerchantOrderID:     order.GetMerchantOrderId(),
+		TenantID:            order.GetTenantId(),
 		UserID:              order.GetUserId(),
 		OrderAmount:         order.GetOrderAmount(),
 		OrderCurrency:       order.GetOrderCurrency(),

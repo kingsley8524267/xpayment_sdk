@@ -38,6 +38,7 @@ type Client interface {
 type CreatePaymentOrderRequest struct {
 	MerchantCode     string  `json:"merchantCode"`
 	MerchantOrderID  string  `json:"merchantOrderId"`
+	TenantID         string  `json:"tenantId"`
 	UserID           string  `json:"userId,omitempty"`
 	OrderAmount      float64 `json:"orderAmount"`
 	OrderCurrency    string  `json:"orderCurrency"`
@@ -58,6 +59,7 @@ type ListPaymentOrdersRequest struct {
 	Page         int
 	PageSize     int
 	MerchantCode string
+	TenantID     string
 	UserID       string
 	Status       string
 }
@@ -100,6 +102,7 @@ type PaymentOrder struct {
 	PaymentNo           string  `json:"paymentNo"`
 	MerchantCode        string  `json:"merchantCode"`
 	MerchantOrderID     string  `json:"merchantOrderId"`
+	TenantID            string  `json:"tenantId"`
 	UserID              string  `json:"userId"`
 	OrderAmount         float64 `json:"orderAmount"`
 	OrderCurrency       string  `json:"orderCurrency"`

@@ -95,6 +95,7 @@ func (c *httpClient) listPaymentOrders(ctx context.Context, req ListPaymentOrder
 		body.Filters = append(body.Filters, filterCondition{Field: field, Operator: "=", Value: value})
 	}
 	appendFilter("merchantCode", req.MerchantCode)
+	appendFilter("tenantId", req.TenantID)
 	appendFilter("userId", req.UserID)
 	appendFilter("status", req.Status)
 	var out ListPaymentOrdersResponse
