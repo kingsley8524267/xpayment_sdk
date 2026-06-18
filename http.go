@@ -96,7 +96,7 @@ func (c *httpClient) listPaymentOrders(ctx context.Context, req ListPaymentOrder
 	}
 	appendFilter("merchantCode", req.MerchantCode)
 	appendFilter("tenantId", req.TenantID)
-	appendFilter("userId", req.UserID)
+	appendFilter("payerUserId", req.PayerUserID)
 	appendFilter("status", req.Status)
 	var out ListPaymentOrdersResponse
 	if err := c.do(ctx, http.MethodPost, "/internal/payment/orders/list", body, &out); err != nil {
