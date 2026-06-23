@@ -36,9 +36,12 @@ type Client interface {
 }
 
 type CreatePaymentOrderRequest struct {
-	MerchantCode     string  `json:"merchantCode"`
-	MerchantOrderID  string  `json:"merchantOrderId"`
-	UserID           string  `json:"userId,omitempty"`
+	MerchantCode    string `json:"merchantCode"`
+	MerchantOrderID string `json:"merchantOrderId"`
+	// TenantID is the workspace owner/billing boundary for the order.
+	TenantID string `json:"tenantId"`
+	// PayerUserID is optional payer/actor metadata and must not be used as owner scope.
+	PayerUserID      string  `json:"payerUserId,omitempty"`
 	OrderAmount      float64 `json:"orderAmount"`
 	OrderCurrency    string  `json:"orderCurrency"`
 	PaymentCurrency  string  `json:"paymentCurrency"`
@@ -58,8 +61,11 @@ type ListPaymentOrdersRequest struct {
 	Page         int
 	PageSize     int
 	MerchantCode string
-	UserID       string
-	Status       string
+	// TenantID filters the workspace owner/billing boundary.
+	TenantID string
+	// PayerUserID filters optional payer/actor metadata, not owner scope.
+	PayerUserID string
+	Status      string
 }
 
 type ListPaymentOrdersResponse struct {
@@ -96,11 +102,14 @@ type AvailablePaymentChannel struct {
 }
 
 type PaymentOrder struct {
-	ID                  uint64  `json:"id"`
-	PaymentNo           string  `json:"paymentNo"`
-	MerchantCode        string  `json:"merchantCode"`
-	MerchantOrderID     string  `json:"merchantOrderId"`
-	UserID              string  `json:"userId"`
+	ID              uint64 `json:"id"`
+	PaymentNo       string `json:"paymentNo"`
+	MerchantCode    string `json:"merchantCode"`
+	MerchantOrderID string `json:"merchantOrderId"`
+	// TenantID is the workspace owner/billing boundary for the order.
+	TenantID string `json:"tenantId"`
+	// PayerUserID is optional payer/actor metadata and must not be used as owner scope.
+	PayerUserID         string  `json:"payerUserId"`
 	OrderAmount         float64 `json:"orderAmount"`
 	OrderCurrency       string  `json:"orderCurrency"`
 	SettlementAmount    float64 `json:"settlementAmount"`
