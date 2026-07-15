@@ -48,7 +48,7 @@ func newHTTPClient(baseURL string, client *http.Client) *httpClient {
 
 func (c *httpClient) createPaymentOrder(ctx context.Context, req CreatePaymentOrderRequest) (*PaymentOrder, error) {
 	var out PaymentOrder
-	if err := c.do(ctx, http.MethodPost, "/internal/payment/orders", req, &out); err != nil {
+	if err := c.do(ctx, http.MethodPost, "/internal/xpayment/orders", req, &out); err != nil {
 		return nil, err
 	}
 	return &out, nil
@@ -56,7 +56,7 @@ func (c *httpClient) createPaymentOrder(ctx context.Context, req CreatePaymentOr
 
 func (c *httpClient) getPaymentOrder(ctx context.Context, id uint64) (*PaymentOrder, error) {
 	var out PaymentOrder
-	if err := c.do(ctx, http.MethodGet, "/internal/payment/orders/"+strconv.FormatUint(id, 10), nil, &out); err != nil {
+	if err := c.do(ctx, http.MethodGet, "/internal/xpayment/orders/"+strconv.FormatUint(id, 10), nil, &out); err != nil {
 		return nil, err
 	}
 	return &out, nil
@@ -64,7 +64,7 @@ func (c *httpClient) getPaymentOrder(ctx context.Context, id uint64) (*PaymentOr
 
 func (c *httpClient) getPaymentOrderByMerchantOrder(ctx context.Context, req GetPaymentOrderByMerchantOrderRequest) (*PaymentOrder, error) {
 	var out PaymentOrder
-	if err := c.do(ctx, http.MethodPost, "/internal/payment/orders/by-merchant-order", req, &out); err != nil {
+	if err := c.do(ctx, http.MethodPost, "/internal/xpayment/orders/by-merchant-order", req, &out); err != nil {
 		return nil, err
 	}
 	return &out, nil
@@ -72,7 +72,7 @@ func (c *httpClient) getPaymentOrderByMerchantOrder(ctx context.Context, req Get
 
 func (c *httpClient) queryPaymentOrder(ctx context.Context, id uint64) (*PaymentOrder, error) {
 	var out PaymentOrder
-	if err := c.do(ctx, http.MethodPost, "/internal/payment/orders/"+strconv.FormatUint(id, 10)+"/query", nil, &out); err != nil {
+	if err := c.do(ctx, http.MethodPost, "/internal/xpayment/orders/"+strconv.FormatUint(id, 10)+"/query", nil, &out); err != nil {
 		return nil, err
 	}
 	return &out, nil
@@ -80,7 +80,7 @@ func (c *httpClient) queryPaymentOrder(ctx context.Context, id uint64) (*Payment
 
 func (c *httpClient) cancelPaymentOrder(ctx context.Context, id uint64) (*PaymentOrder, error) {
 	var out PaymentOrder
-	if err := c.do(ctx, http.MethodPost, "/internal/payment/orders/"+strconv.FormatUint(id, 10)+"/cancel", nil, &out); err != nil {
+	if err := c.do(ctx, http.MethodPost, "/internal/xpayment/orders/"+strconv.FormatUint(id, 10)+"/cancel", nil, &out); err != nil {
 		return nil, err
 	}
 	return &out, nil
@@ -99,7 +99,7 @@ func (c *httpClient) listPaymentOrders(ctx context.Context, req ListPaymentOrder
 	appendFilter("payerUserId", req.PayerUserID)
 	appendFilter("status", req.Status)
 	var out ListPaymentOrdersResponse
-	if err := c.do(ctx, http.MethodPost, "/internal/payment/orders/list", body, &out); err != nil {
+	if err := c.do(ctx, http.MethodPost, "/internal/xpayment/orders/list", body, &out); err != nil {
 		return nil, err
 	}
 	return &out, nil
@@ -107,7 +107,7 @@ func (c *httpClient) listPaymentOrders(ctx context.Context, req ListPaymentOrder
 
 func (c *httpClient) listSupportedCurrencies(ctx context.Context) (*ListSupportedCurrenciesResponse, error) {
 	var out ListSupportedCurrenciesResponse
-	if err := c.do(ctx, http.MethodGet, "/internal/payment/currencies", nil, &out); err != nil {
+	if err := c.do(ctx, http.MethodGet, "/internal/xpayment/currencies", nil, &out); err != nil {
 		return nil, err
 	}
 	return &out, nil
@@ -115,7 +115,7 @@ func (c *httpClient) listSupportedCurrencies(ctx context.Context) (*ListSupporte
 
 func (c *httpClient) listAvailablePaymentChannels(ctx context.Context, req ListAvailablePaymentChannelsRequest) (*ListAvailablePaymentChannelsResponse, error) {
 	var items []AvailablePaymentChannel
-	if err := c.do(ctx, http.MethodPost, "/internal/payment/channels/available", req, &items); err != nil {
+	if err := c.do(ctx, http.MethodPost, "/internal/xpayment/channels/available", req, &items); err != nil {
 		return nil, err
 	}
 	return &ListAvailablePaymentChannelsResponse{Items: items}, nil

@@ -43,21 +43,21 @@ func TestCreatePaymentOrderGRPCSuccessDoesNotCallHTTP(t *testing.T) {
 	if got := fakeGRPC.lastCreateReq.GetSuccessReturnUrl(); got != "https://console.example.com/wallet" {
 		t.Fatalf("expected success return url to be sent over grpc, got %q", got)
 	}
-	if got := fakeGRPC.lastCreateReq.GetCallbackBaseUrl(); got != "http://app:6060/internal/payment/xpayment/callback" {
+	if got := fakeGRPC.lastCreateReq.GetCallbackBaseUrl(); got != "http://app:6060/internal/xpayment/callback" {
 		t.Fatalf("expected business callback url to be sent over grpc, got %q", got)
 	}
 }
 
 func TestCreatePaymentOrderFallbacksOnUnavailable(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path != "/internal/payment/orders" {
+		if r.URL.Path != "/internal/xpayment/orders" {
 			t.Fatalf("unexpected path %s", r.URL.Path)
 		}
 		var req CreatePaymentOrderRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			t.Fatalf("decode request: %v", err)
 		}
-		if req.CallbackBaseURL != "http://app:6060/internal/payment/xpayment/callback" {
+		if req.CallbackBaseURL != "http://app:6060/internal/xpayment/callback" {
 			t.Fatalf("expected business callback url over http fallback, got %q", req.CallbackBaseURL)
 		}
 		writeEnvelope(t, w, http.StatusOK, orderFixture())
@@ -101,7 +101,7 @@ func TestCreatePaymentOrderBusinessErrorDoesNotFallback(t *testing.T) {
 
 func TestPureHTTPModeListSupportedCurrencies(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path != "/internal/payment/currencies" {
+		if r.URL.Path != "/internal/xpayment/currencies" {
 			t.Fatalf("unexpected path %s", r.URL.Path)
 		}
 		writeEnvelope(t, w, http.StatusOK, ListSupportedCurrenciesResponse{Currencies: []string{"USD", "CNY"}})
@@ -145,7 +145,7 @@ func createFixture() CreatePaymentOrderRequest {
 	return CreatePaymentOrderRequest{
 		MerchantCode: "xai-wallet", MerchantOrderID: "m1", TenantID: "tenant-550e8400-e29b-41d4-a716-446655440000", PayerUserID: "550e8400-e29b-41d4-a716-446655440000",
 		OrderAmount: 10, OrderCurrency: "USD", PaymentCurrency: "CNY", ChannelCode: "alipay", IdempotencyKey: "idem-1",
-		CallbackBaseURL:  "http://app:6060/internal/payment/xpayment/callback",
+		CallbackBaseURL:  "http://app:6060/internal/xpayment/callback",
 		SuccessReturnURL: "https://console.example.com/wallet",
 		Metadata:         JSONMap{"source": "test"},
 	}
