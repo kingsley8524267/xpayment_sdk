@@ -1,3 +1,10 @@
+## [v2026.07.16] - 2026-07-16
+
+### Fixed
+
+- fix: use canonical xpayment routes (32edb99)
+
+
 ## [v2026.06.24] - 2026-06-24
 
 ### Other
