@@ -16,6 +16,25 @@ import (
 	"google.golang.org/grpc/status"
 )
 
+func TestAvailablePaymentChannelsFromProtoPreservesCustomerPresentation(t *testing.T) {
+	got := availableChannelsFromProto(&pb.ListAvailablePaymentChannelsResponse{
+		Items: []*pb.AvailablePaymentChannel{{
+			ChannelCode:     "card",
+			Name:            "Credit / Debit Card",
+			Icon:            "mdi:credit-card-outline",
+			PaymentCurrency: "USD",
+			PaymentAmount:   10,
+		}},
+	})
+	if got == nil || len(got.Items) != 1 {
+		t.Fatalf("expected one available payment method, got %#v", got)
+	}
+	item := got.Items[0]
+	if item.Name != "Credit / Debit Card" || item.Icon != "mdi:credit-card-outline" {
+		t.Fatalf("customer presentation was not preserved: %#v", item)
+	}
+}
+
 func TestCreatePaymentOrderGRPCSuccessDoesNotCallHTTP(t *testing.T) {
 	var httpCalls atomic.Int32
 	fakeGRPC := &fakePaymentServiceClient{createResp: protoOrderFixture()}
@@ -43,9 +62,6 @@ func TestCreatePaymentOrderGRPCSuccessDoesNotCallHTTP(t *testing.T) {
 	if got := fakeGRPC.lastCreateReq.GetSuccessReturnUrl(); got != "https://console.example.com/wallet" {
 		t.Fatalf("expected success return url to be sent over grpc, got %q", got)
 	}
-	if got := fakeGRPC.lastCreateReq.GetCallbackBaseUrl(); got != "http://app:6060/internal/xpayment/callback" {
-		t.Fatalf("expected business callback url to be sent over grpc, got %q", got)
-	}
 }
 
 func TestCreatePaymentOrderFallbacksOnUnavailable(t *testing.T) {
@@ -56,9 +72,6 @@ func TestCreatePaymentOrderFallbacksOnUnavailable(t *testing.T) {
 		var req CreatePaymentOrderRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			t.Fatalf("decode request: %v", err)
-		}
-		if req.CallbackBaseURL != "http://app:6060/internal/xpayment/callback" {
-			t.Fatalf("expected business callback url over http fallback, got %q", req.CallbackBaseURL)
 		}
 		writeEnvelope(t, w, http.StatusOK, orderFixture())
 	}))
@@ -145,7 +158,6 @@ func createFixture() CreatePaymentOrderRequest {
 	return CreatePaymentOrderRequest{
 		MerchantCode: "xai-wallet", MerchantOrderID: "m1", TenantID: "tenant-550e8400-e29b-41d4-a716-446655440000", PayerUserID: "550e8400-e29b-41d4-a716-446655440000",
 		OrderAmount: 10, OrderCurrency: "USD", PaymentCurrency: "CNY", ChannelCode: "alipay", IdempotencyKey: "idem-1",
-		CallbackBaseURL:  "http://app:6060/internal/xpayment/callback",
 		SuccessReturnURL: "https://console.example.com/wallet",
 		Metadata:         JSONMap{"source": "test"},
 	}
@@ -227,5 +239,5 @@ func (f *fakePaymentServiceClient) ListSupportedCurrencies(context.Context, *pb.
 }
 
 func (f *fakePaymentServiceClient) ListAvailablePaymentChannels(context.Context, *pb.ListAvailablePaymentChannelsRequest, ...grpc.CallOption) (*pb.ListAvailablePaymentChannelsResponse, error) {
-	return &pb.ListAvailablePaymentChannelsResponse{Items: []*pb.AvailablePaymentChannel{{ChannelCode: "alipay", Provider: "mock"}}}, nil
+	return &pb.ListAvailablePaymentChannelsResponse{Items: []*pb.AvailablePaymentChannel{{ChannelCode: "alipaycn"}}}, nil
 }

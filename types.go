@@ -9,6 +9,13 @@ import (
 
 const defaultTimeout = 5 * time.Second
 
+const (
+	OrderStatusPaid             = "paid"
+	OrderStatusManuallyApproved = "manually_approved"
+	SettlementSourceProvider    = "provider"
+	SettlementSourceManual      = "manual"
+)
+
 type Config struct {
 	ServiceName      string
 	GRPCAddress      string
@@ -47,7 +54,6 @@ type CreatePaymentOrderRequest struct {
 	PaymentCurrency  string  `json:"paymentCurrency"`
 	ChannelCode      string  `json:"channelCode"`
 	IdempotencyKey   string  `json:"idempotencyKey,omitempty"`
-	CallbackBaseURL  string  `json:"callbackBaseUrl,omitempty"`
 	SuccessReturnURL string  `json:"successReturnUrl,omitempty"`
 	Metadata         JSONMap `json:"metadata,omitempty"`
 }
@@ -92,13 +98,11 @@ type ListAvailablePaymentChannelsResponse struct {
 }
 
 type AvailablePaymentChannel struct {
-	ChannelCode       string  `json:"channelCode"`
-	Provider          string  `json:"provider"`
-	ChannelID         uint64  `json:"channelId"`
-	MerchantAccountID uint64  `json:"merchantAccountId"`
-	Name              string  `json:"name"`
-	PaymentCurrency   string  `json:"paymentCurrency"`
-	PaymentAmount     float64 `json:"paymentAmount"`
+	ChannelCode     string  `json:"channelCode"`
+	Name            string  `json:"name"`
+	Icon            string  `json:"icon"`
+	PaymentCurrency string  `json:"paymentCurrency"`
+	PaymentAmount   float64 `json:"paymentAmount"`
 }
 
 type PaymentOrder struct {

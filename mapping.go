@@ -22,7 +22,6 @@ func createToProto(req CreatePaymentOrderRequest) (*pb.CreatePaymentOrderRequest
 		PaymentCurrency:  req.PaymentCurrency,
 		ChannelCode:      req.ChannelCode,
 		IdempotencyKey:   req.IdempotencyKey,
-		CallbackBaseUrl:  req.CallbackBaseURL,
 		SuccessReturnUrl: req.SuccessReturnURL,
 		MetadataJson:     metadata,
 	}, nil
@@ -93,13 +92,8 @@ func availableChannelsFromProto(resp *pb.ListAvailablePaymentChannelsResponse) *
 			continue
 		}
 		items = append(items, AvailablePaymentChannel{
-			ChannelCode:       item.GetChannelCode(),
-			Provider:          item.GetProvider(),
-			ChannelID:         item.GetChannelId(),
-			MerchantAccountID: item.GetMerchantAccountId(),
-			Name:              item.GetName(),
-			PaymentCurrency:   item.GetPaymentCurrency(),
-			PaymentAmount:     item.GetPaymentAmount(),
+			ChannelCode: item.GetChannelCode(), Name: item.GetName(), Icon: item.GetIcon(),
+			PaymentCurrency: item.GetPaymentCurrency(), PaymentAmount: item.GetPaymentAmount(),
 		})
 	}
 	return &ListAvailablePaymentChannelsResponse{Items: items}
