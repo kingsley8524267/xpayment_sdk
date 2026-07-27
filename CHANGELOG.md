@@ -1,3 +1,10 @@
+## [v2026.07.27] - 2026-07-27
+
+### Added
+
+- feat: add verified payment callback support (0ea228b)
+
+
 ## [v2026.07.16] - 2026-07-16
 
 ### Fixed
