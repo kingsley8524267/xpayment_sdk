@@ -128,6 +128,25 @@ func (c *client) QueryPaymentOrder(ctx context.Context, id uint64) (*PaymentOrde
 	return nil, err
 }
 
+func (c *client) CheckPaymentOrderByPaymentNo(ctx context.Context, req CheckPaymentOrderByPaymentNoRequest) (*PaymentOrderCheckResult, error) {
+	if c.useHTTP() {
+		return nil, fmt.Errorf("xpayment payment check requires gRPC")
+	}
+	callCtx, cancel := c.withTimeout(ctx)
+	resp, err := c.grpc.CheckPaymentOrderByPaymentNo(callCtx, &pb.CheckPaymentOrderByPaymentNoRequest{
+		PaymentNo: req.PaymentNo, MerchantCode: req.MerchantCode, MerchantOrderId: req.MerchantOrderID,
+	})
+	cancel()
+	if err != nil {
+		return nil, err
+	}
+	order, err := orderFromProto(resp.GetOrder())
+	if err != nil {
+		return nil, err
+	}
+	return &PaymentOrderCheckResult{Order: order, Result: resp.GetResult(), NextEligibleAt: resp.GetNextEligibleAt()}, nil
+}
+
 func (c *client) CancelPaymentOrder(ctx context.Context, id uint64) (*PaymentOrder, error) {
 	if c.useHTTP() {
 		return c.http.cancelPaymentOrder(ctx, id)

@@ -35,6 +35,7 @@ type Client interface {
 	GetPaymentOrder(ctx context.Context, id uint64) (*PaymentOrder, error)
 	GetPaymentOrderByMerchantOrder(ctx context.Context, req GetPaymentOrderByMerchantOrderRequest) (*PaymentOrder, error)
 	QueryPaymentOrder(ctx context.Context, id uint64) (*PaymentOrder, error)
+	CheckPaymentOrderByPaymentNo(ctx context.Context, req CheckPaymentOrderByPaymentNoRequest) (*PaymentOrderCheckResult, error)
 	CancelPaymentOrder(ctx context.Context, id uint64) (*PaymentOrder, error)
 	ListPaymentOrders(ctx context.Context, req ListPaymentOrdersRequest) (*ListPaymentOrdersResponse, error)
 	ListSupportedCurrencies(ctx context.Context) (*ListSupportedCurrenciesResponse, error)
@@ -61,6 +62,18 @@ type CreatePaymentOrderRequest struct {
 type GetPaymentOrderByMerchantOrderRequest struct {
 	MerchantCode    string `json:"merchantCode"`
 	MerchantOrderID string `json:"merchantOrderId"`
+}
+
+type CheckPaymentOrderByPaymentNoRequest struct {
+	PaymentNo       string `json:"paymentNo"`
+	MerchantCode    string `json:"merchantCode"`
+	MerchantOrderID string `json:"merchantOrderId"`
+}
+
+type PaymentOrderCheckResult struct {
+	Order          *PaymentOrder `json:"order"`
+	Result         string        `json:"result"`
+	NextEligibleAt string        `json:"nextEligibleAt,omitempty"`
 }
 
 type ListPaymentOrdersRequest struct {

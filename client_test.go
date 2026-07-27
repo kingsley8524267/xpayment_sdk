@@ -226,6 +226,10 @@ func (f *fakePaymentServiceClient) QueryPaymentOrder(context.Context, *pb.GetPay
 	return protoOrderFixture(), nil
 }
 
+func (f *fakePaymentServiceClient) CheckPaymentOrderByPaymentNo(context.Context, *pb.CheckPaymentOrderByPaymentNoRequest, ...grpc.CallOption) (*pb.CheckPaymentOrderByPaymentNoResponse, error) {
+	return &pb.CheckPaymentOrderByPaymentNoResponse{Order: protoOrderFixture(), Result: "checked"}, nil
+}
+
 func (f *fakePaymentServiceClient) CancelPaymentOrder(context.Context, *pb.GetPaymentOrderRequest, ...grpc.CallOption) (*pb.PaymentOrderResponse, error) {
 	return protoOrderFixture(), nil
 }
