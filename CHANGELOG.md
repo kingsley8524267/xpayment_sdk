@@ -1,3 +1,10 @@
+## [v2026.07.28.1] - 2026-07-28
+
+### Changed
+
+- refactor: own payment protobuf contract (7a72c4e)
+
+
 ## [v2026.07.28] - 2026-07-28
 
 ### Added
