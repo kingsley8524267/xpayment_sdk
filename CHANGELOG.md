@@ -1,3 +1,10 @@
+## [v2026.07.28] - 2026-07-28
+
+### Added
+
+- feat: expose payment method category metadata (36c911e)
+
+
 ## [v2026.07.27.1] - 2026-07-27
 
 ### Added
