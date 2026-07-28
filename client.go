@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"foundation/integration/grpcx"
-	pb "xpayment-svc/proto"
+	pb "xpayment-sdk/proto"
 )
 
 type client struct {

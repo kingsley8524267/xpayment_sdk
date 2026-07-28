@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	pb "xpayment-svc/proto"
+	pb "xpayment-sdk/proto"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"

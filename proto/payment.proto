@@ -1,0 +1,133 @@
+syntax = "proto3";
+
+package payment.v1;
+
+option go_package = "xpayment-sdk/proto;paymentv1";
+
+service PaymentService {
+  rpc CreatePaymentOrder(CreatePaymentOrderRequest) returns (PaymentOrderResponse);
+  rpc GetPaymentOrder(GetPaymentOrderRequest) returns (PaymentOrderResponse);
+  rpc GetPaymentOrderByMerchantOrder(GetPaymentOrderByMerchantOrderRequest) returns (PaymentOrderResponse);
+  rpc QueryPaymentOrder(GetPaymentOrderRequest) returns (PaymentOrderResponse);
+  rpc CheckPaymentOrderByPaymentNo(CheckPaymentOrderByPaymentNoRequest) returns (CheckPaymentOrderByPaymentNoResponse);
+  rpc CancelPaymentOrder(GetPaymentOrderRequest) returns (PaymentOrderResponse);
+  rpc ListPaymentOrders(ListPaymentOrdersRequest) returns (ListPaymentOrdersResponse);
+  rpc ListSupportedCurrencies(ListSupportedCurrenciesRequest) returns (ListSupportedCurrenciesResponse);
+  rpc ListAvailablePaymentChannels(ListAvailablePaymentChannelsRequest) returns (ListAvailablePaymentChannelsResponse);
+}
+
+message CreatePaymentOrderRequest {
+  reserved 6, 8, 9, 10, 12, 13, 15;
+  reserved "settlement_currency", "order_exchange_rate", "payment_exchange_rate", "provider", "channel_id", "merchant_account_id", "callback_base_url";
+  string merchant_code = 1;
+  string merchant_order_id = 2;
+  // payer_user_id is optional payer/actor metadata; tenant_id is the order owner.
+  string payer_user_id = 3;
+  double order_amount = 4;
+  string order_currency = 5;
+  string payment_currency = 7;
+  string channel_code = 11;
+  string idempotency_key = 14;
+  string metadata_json = 16;
+  string success_return_url = 17;
+  string tenant_id = 18;
+}
+
+message GetPaymentOrderRequest {
+  uint64 id = 1;
+}
+
+message GetPaymentOrderByMerchantOrderRequest {
+  string merchant_code = 1;
+  string merchant_order_id = 2;
+}
+
+message CheckPaymentOrderByPaymentNoRequest {
+  string payment_no = 1;
+  string merchant_code = 2;
+  string merchant_order_id = 3;
+}
+
+message CheckPaymentOrderByPaymentNoResponse {
+  PaymentOrderResponse order = 1;
+  string result = 2;
+  string next_eligible_at = 3;
+}
+
+message ListPaymentOrdersRequest {
+  int32 page = 1;
+  int32 page_size = 2;
+  string merchant_code = 3;
+  // payer_user_id filters optional payer/actor metadata, not owner scope.
+  string payer_user_id = 4;
+  string status = 5;
+  string tenant_id = 6;
+}
+
+message ListPaymentOrdersResponse {
+  repeated PaymentOrderResponse items = 1;
+  int64 total = 2;
+  int32 page = 3;
+  int32 page_size = 4;
+}
+
+message ListSupportedCurrenciesRequest {}
+
+message ListSupportedCurrenciesResponse {
+  repeated string currencies = 1;
+}
+
+message ListAvailablePaymentChannelsRequest {
+  string merchant_code = 1;
+  double order_amount = 2;
+  string order_currency = 3;
+  string payment_currency = 4;
+}
+
+message AvailablePaymentChannel {
+  reserved 2, 3, 4, 8, 9, 12, 15, 16, 17, 18;
+  reserved "provider", "channel_id", "merchant_account_id", "icon", "name_translations", "category_name_translations", "logo_key", "logo_url", "name_locale_key", "category_locale_key";
+  string channel_code = 1;
+  string name = 5;
+  string payment_currency = 6;
+  double payment_amount = 7;
+  string category = 10;
+  string category_name = 11;
+  int32 category_order = 13;
+  int32 method_order = 14;
+}
+
+message ListAvailablePaymentChannelsResponse {
+  repeated AvailablePaymentChannel items = 1;
+}
+
+message PaymentOrderResponse {
+  uint64 id = 1;
+  string payment_no = 2;
+  string merchant_code = 3;
+  string merchant_order_id = 4;
+  // payer_user_id is optional payer/actor metadata; tenant_id is the order owner.
+  string payer_user_id = 5;
+  double order_amount = 6;
+  string order_currency = 7;
+  double settlement_amount = 8;
+  string settlement_currency = 9;
+  double payment_amount = 10;
+  string payment_currency = 11;
+  double order_exchange_rate = 12;
+  double payment_exchange_rate = 13;
+  string provider = 14;
+  string channel_code = 15;
+  uint64 channel_id = 16;
+  uint64 merchant_account_id = 17;
+  string provider_payment_id = 18;
+  string checkout_url = 19;
+  string status = 20;
+  string failure_reason = 21;
+  string metadata_json = 22;
+  string expires_at = 23;
+  string created_at = 24;
+  string updated_at = 25;
+  string tenant_id = 26;
+  uint64 gateway_connection_id = 27;
+}

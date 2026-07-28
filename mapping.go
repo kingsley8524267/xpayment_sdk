@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/bytedance/sonic"
-	pb "xpayment-svc/proto"
+	pb "xpayment-sdk/proto"
 )
 
 func createToProto(req CreatePaymentOrderRequest) (*pb.CreatePaymentOrderRequest, error) {
