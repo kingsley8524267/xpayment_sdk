@@ -113,7 +113,10 @@ type ListAvailablePaymentChannelsResponse struct {
 type AvailablePaymentChannel struct {
 	ChannelCode     string  `json:"channelCode"`
 	Name            string  `json:"name"`
-	Icon            string  `json:"icon"`
+	Category        string  `json:"category"`
+	CategoryName    string  `json:"categoryName"`
+	CategoryOrder   int     `json:"categoryOrder"`
+	MethodOrder     int     `json:"methodOrder"`
 	PaymentCurrency string  `json:"paymentCurrency"`
 	PaymentAmount   float64 `json:"paymentAmount"`
 }

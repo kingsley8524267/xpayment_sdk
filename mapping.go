@@ -92,8 +92,10 @@ func availableChannelsFromProto(resp *pb.ListAvailablePaymentChannelsResponse) *
 			continue
 		}
 		items = append(items, AvailablePaymentChannel{
-			ChannelCode: item.GetChannelCode(), Name: item.GetName(), Icon: item.GetIcon(),
+			ChannelCode: item.GetChannelCode(), Name: item.GetName(),
 			PaymentCurrency: item.GetPaymentCurrency(), PaymentAmount: item.GetPaymentAmount(),
+			Category: item.GetCategory(), CategoryName: item.GetCategoryName(),
+			CategoryOrder: int(item.GetCategoryOrder()), MethodOrder: int(item.GetMethodOrder()),
 		})
 	}
 	return &ListAvailablePaymentChannelsResponse{Items: items}

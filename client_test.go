@@ -21,17 +21,24 @@ func TestAvailablePaymentChannelsFromProtoPreservesCustomerPresentation(t *testi
 		Items: []*pb.AvailablePaymentChannel{{
 			ChannelCode:     "card",
 			Name:            "Credit / Debit Card",
-			Icon:            "mdi:credit-card-outline",
 			PaymentCurrency: "USD",
 			PaymentAmount:   10,
+			Category:        "card_payment",
+			CategoryName:    "Card payment",
+			CategoryOrder:   1,
+			MethodOrder:     1,
 		}},
 	})
 	if got == nil || len(got.Items) != 1 {
 		t.Fatalf("expected one available payment method, got %#v", got)
 	}
 	item := got.Items[0]
-	if item.Name != "Credit / Debit Card" || item.Icon != "mdi:credit-card-outline" {
+	if item.Name != "Credit / Debit Card" {
 		t.Fatalf("customer presentation was not preserved: %#v", item)
+	}
+	if item.Category != "card_payment" || item.CategoryName != "Card payment" ||
+		item.CategoryOrder != 1 || item.MethodOrder != 1 {
+		t.Fatalf("catalog presentation was not preserved: %#v", item)
 	}
 }
 
