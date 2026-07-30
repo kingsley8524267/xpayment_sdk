@@ -2,13 +2,19 @@ package xpaymentsdk
 
 import (
 	"context"
+	"crypto/rand"
+	"crypto/rsa"
+	"crypto/x509"
 	"encoding/json"
+	"encoding/pem"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"sync/atomic"
 	"testing"
 	"time"
 
+	"foundation/http/security/servicejwt"
 	pb "xpayment-sdk/proto"
 
 	"google.golang.org/grpc"
@@ -72,9 +78,21 @@ func TestCreatePaymentOrderGRPCSuccessDoesNotCallHTTP(t *testing.T) {
 }
 
 func TestCreatePaymentOrderFallbacksOnUnavailable(t *testing.T) {
+	signer, verifier := testSignerAndVerifier(t, "xpayment-control-plane")
+	tokenSource, err := signer.Source(servicejwt.ClientConfig{Audience: "xpayment-control-plane"})
+	if err != nil {
+		t.Fatalf("create token source: %v", err)
+	}
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/internal/xpayment/orders" {
 			t.Fatalf("unexpected path %s", r.URL.Path)
+		}
+		identity, verifyErr := verifier.VerifyBearer(r.Header.Get(servicejwt.DefaultHeader))
+		if verifyErr != nil {
+			t.Fatalf("verify xpayment fallback service jwt: %v", verifyErr)
+		}
+		if identity.ServiceName != "gateway" || identity.KeyID != "gateway-v1" {
+			t.Fatalf("fallback identity=%+v", identity)
 		}
 		var req CreatePaymentOrderRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -86,7 +104,7 @@ func TestCreatePaymentOrderFallbacksOnUnavailable(t *testing.T) {
 
 	c := &client{
 		grpc:    &fakePaymentServiceClient{createErr: status.Error(codes.Unavailable, "transport unavailable")},
-		http:    newHTTPClient(server.URL, server.Client()),
+		http:    newHTTPClient(server.URL, server.Client(), tokenSource),
 		timeout: time.Second,
 	}
 	order, err := c.CreatePaymentOrder(context.Background(), createFixture())
@@ -128,7 +146,13 @@ func TestPureHTTPModeListSupportedCurrencies(t *testing.T) {
 	}))
 	defer server.Close()
 
-	raw, err := NewClient(Config{HTTPBaseURL: server.URL, PreferHTTP: true, Timeout: time.Second})
+	raw, err := NewClient(Config{
+		HTTPBaseURL:      server.URL,
+		PreferHTTP:       true,
+		Timeout:          time.Second,
+		ServiceJWT:       servicejwt.ClientConfig{Audience: "xpayment-control-plane"},
+		ServiceJWTSigner: testSignerRuntime(t),
+	})
 	if err != nil {
 		t.Fatalf("NewClient returned error: %v", err)
 	}
@@ -147,7 +171,7 @@ func TestHTTPEnvelopeError(t *testing.T) {
 	}))
 	defer server.Close()
 
-	c := newHTTPClient(server.URL, server.Client())
+	c := newHTTPClient(server.URL, server.Client(), testTokenSource(t))
 	_, err := c.listSupportedCurrencies(context.Background())
 	if err == nil {
 		t.Fatal("expected http envelope error")
@@ -159,6 +183,57 @@ func TestHTTPEnvelopeError(t *testing.T) {
 	if httpErr.Code != http.StatusBadRequest {
 		t.Fatalf("expected code 400, got %d", httpErr.Code)
 	}
+}
+
+func testTokenSource(t *testing.T) servicejwt.TokenProvider {
+	t.Helper()
+	source, err := testSignerRuntime(t).Source(servicejwt.ClientConfig{Audience: "xpayment-control-plane"})
+	if err != nil {
+		t.Fatalf("create test token source: %v", err)
+	}
+	return source
+}
+
+func testSignerRuntime(t *testing.T) *servicejwt.SignerRuntime {
+	t.Helper()
+	runtime, _ := testSignerAndVerifier(t, "xpayment-control-plane")
+	return runtime
+}
+
+func testSignerAndVerifier(t *testing.T, audience string) (*servicejwt.SignerRuntime, *servicejwt.Verifier) {
+	t.Helper()
+	key, err := rsa.GenerateKey(rand.Reader, 3072)
+	if err != nil {
+		t.Fatalf("generate RSA key: %v", err)
+	}
+	path := t.TempDir() + "/gateway-private.pem"
+	raw := pem.EncodeToMemory(&pem.Block{Type: "RSA PRIVATE KEY", Bytes: x509.MarshalPKCS1PrivateKey(key)})
+	if err := os.WriteFile(path, raw, 0o600); err != nil {
+		t.Fatalf("write RSA key: %v", err)
+	}
+	runtime, err := servicejwt.NewSignerRuntime(servicejwt.SignerFileConfig{
+		ServiceName:          "gateway",
+		Issuer:               servicejwt.DefaultIssuer,
+		KeyID:                "gateway-v1",
+		PrivateKeyFile:       path,
+		TokenTTLSeconds:      300,
+		RefreshBeforeSeconds: 30,
+	})
+	if err != nil {
+		t.Fatalf("create signer runtime: %v", err)
+	}
+	publicDER, err := x509.MarshalPKIXPublicKey(&key.PublicKey)
+	if err != nil {
+		t.Fatalf("marshal public key: %v", err)
+	}
+	verifier, err := servicejwt.NewVerifier(servicejwt.VerifierConfig{
+		Issuer: servicejwt.DefaultIssuer, Audience: audience,
+		PublicKeyPEMByID: map[string]string{"gateway-v1": string(pem.EncodeToMemory(&pem.Block{Type: "PUBLIC KEY", Bytes: publicDER}))},
+	})
+	if err != nil {
+		t.Fatalf("create verifier: %v", err)
+	}
+	return runtime, verifier
 }
 
 func createFixture() CreatePaymentOrderRequest {

@@ -20,10 +20,13 @@ type client struct {
 }
 
 func NewClient(cfg Config) (Client, error) {
-	cfg.GRPCAddress = strings.TrimSpace(cfg.GRPCAddress)
 	cfg.HTTPBaseURL = strings.TrimRight(strings.TrimSpace(cfg.HTTPBaseURL), "/")
-	if cfg.GRPCAddress == "" && cfg.HTTPBaseURL == "" {
+	if cfg.Endpoint.Mode == "" && cfg.HTTPBaseURL == "" {
 		return nil, fmt.Errorf("xpayment sdk requires grpc address or http base url")
+	}
+	tokenSource, err := cfg.ServiceJWTSigner.Source(cfg.ServiceJWT)
+	if err != nil {
+		return nil, fmt.Errorf("init xpayment service jwt: %w", err)
 	}
 	timeout := cfg.Timeout
 	if timeout <= 0 {
@@ -31,20 +34,30 @@ func NewClient(cfg Config) (Client, error) {
 	}
 	c := &client{
 		cfg:     cfg,
-		http:    newHTTPClient(cfg.HTTPBaseURL, &http.Client{Timeout: timeout}),
+		http:    newHTTPClient(cfg.HTTPBaseURL, &http.Client{Timeout: timeout}, tokenSource),
 		timeout: timeout,
 	}
-	if cfg.GRPCAddress != "" {
+	if cfg.Endpoint.Mode != "" {
 		managed, err := grpcx.NewManagedClient(grpcx.ClientConfig{
-			Enabled:          true,
-			Address:          cfg.GRPCAddress,
-			TimeoutSecs:      int(timeout.Seconds()),
-			ServiceName:      firstNonEmpty(cfg.ServiceName, "xpayment_sdk"),
-			TargetName:       "xpayment_svc",
-			MonitorEnabled:   cfg.GRPCMonitor.Enabled,
-			AlertEnabled:     cfg.GRPCAlert.Enabled,
-			Reconnect:        cfg.GRPCReconnect,
-			FallbackTelegram: cfg.FallbackTelegram,
+			Enabled:              true,
+			Endpoint:             cfg.Endpoint,
+			TimeoutSecs:          int(timeout.Seconds()),
+			ServiceName:          firstNonEmpty(cfg.ServiceName, "xpayment_sdk"),
+			TargetName:           "xpayment_svc",
+			MonitorEnabled:       cfg.GRPCMonitor.Enabled,
+			AlertEnabled:         cfg.GRPCAlert.Enabled,
+			AlertOnFailure:       cfg.GRPCAlert.OnFailure,
+			AlertOnRecovery:      cfg.GRPCAlert.OnRecovery,
+			AlertAfterFailures:   cfg.GRPCAlert.AfterFailures,
+			AlertCooldownSecs:    cfg.GRPCAlert.CooldownSecs,
+			Reconnect:            cfg.GRPCReconnect,
+			ReadinessMode:        cfg.ReadinessMode,
+			Readiness:            cfg.Readiness,
+			Alerts:               cfg.Alerts,
+			HTTPFallbackReadyURL: strings.TrimRight(cfg.HTTPBaseURL, "/") + "/ready",
+			ServiceJWT:           cfg.ServiceJWT,
+			ServiceJWTSigner:     cfg.ServiceJWTSigner,
+			Discovery:            cfg.Discovery,
 		})
 		if err != nil {
 			return nil, err

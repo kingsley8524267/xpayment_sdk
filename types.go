@@ -4,7 +4,10 @@ import (
 	"context"
 	"time"
 
+	"foundation/http/security/servicejwt"
 	"foundation/integration/grpcx"
+	"foundation/runtime/alerts"
+	"foundation/runtime/readiness"
 )
 
 const defaultTimeout = 5 * time.Second
@@ -18,13 +21,18 @@ const (
 
 type Config struct {
 	ServiceName      string
-	GRPCAddress      string
+	Endpoint         grpcx.EndpointConfig
 	HTTPBaseURL      string
 	Timeout          time.Duration
+	ServiceJWT       servicejwt.ClientConfig
+	ServiceJWTSigner *servicejwt.SignerRuntime
+	Discovery        *grpcx.DiscoveryRuntime
 	GRPCMonitor      grpcx.MonitorConfig
 	GRPCAlert        grpcx.AlertConfig
 	GRPCReconnect    grpcx.ReconnectConfig
-	FallbackTelegram grpcx.FallbackTelegramConfig
+	ReadinessMode    string
+	Readiness        *readiness.Registry
+	Alerts           *alerts.Dispatcher
 	PreferHTTP       bool
 }
 

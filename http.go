@@ -10,11 +10,14 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
+
+	"foundation/http/security/servicejwt"
 )
 
 type httpClient struct {
-	baseURL string
-	client  *http.Client
+	baseURL     string
+	client      *http.Client
+	tokenSource servicejwt.TokenProvider
 }
 
 type envelope struct {
@@ -35,7 +38,7 @@ type filterCondition struct {
 	Value    any    `json:"value"`
 }
 
-func newHTTPClient(baseURL string, client *http.Client) *httpClient {
+func newHTTPClient(baseURL string, client *http.Client, tokenSource ...servicejwt.TokenProvider) *httpClient {
 	baseURL = strings.TrimRight(strings.TrimSpace(baseURL), "/")
 	if baseURL == "" {
 		return nil
@@ -43,7 +46,11 @@ func newHTTPClient(baseURL string, client *http.Client) *httpClient {
 	if client == nil {
 		client = http.DefaultClient
 	}
-	return &httpClient{baseURL: baseURL, client: client}
+	var source servicejwt.TokenProvider
+	if len(tokenSource) > 0 {
+		source = tokenSource[0]
+	}
+	return &httpClient{baseURL: baseURL, client: client, tokenSource: source}
 }
 
 func (c *httpClient) createPaymentOrder(ctx context.Context, req CreatePaymentOrderRequest) (*PaymentOrder, error) {
@@ -144,6 +151,9 @@ func (c *httpClient) do(ctx context.Context, method string, path string, body an
 	req.Header.Set("Accept", "application/json")
 	if body != nil {
 		req.Header.Set("Content-Type", "application/json")
+	}
+	if err := servicejwt.AuthorizeHTTPRequest(req, c.tokenSource); err != nil {
+		return fmt.Errorf("authorize xpayment http request: %w", err)
 	}
 	resp, err := c.client.Do(req)
 	if err != nil {
