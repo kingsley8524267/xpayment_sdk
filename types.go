@@ -20,7 +20,6 @@ const (
 )
 
 type Config struct {
-	ServiceName      string
 	Endpoint         grpcx.EndpointConfig
 	HTTPBaseURL      string
 	Timeout          time.Duration

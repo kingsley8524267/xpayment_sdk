@@ -42,8 +42,6 @@ func NewClient(cfg Config) (Client, error) {
 			Enabled:              true,
 			Endpoint:             cfg.Endpoint,
 			TimeoutSecs:          int(timeout.Seconds()),
-			ServiceName:          firstNonEmpty(cfg.ServiceName, "xpayment_sdk"),
-			TargetName:           "xpayment_svc",
 			MonitorEnabled:       cfg.GRPCMonitor.Enabled,
 			AlertEnabled:         cfg.GRPCAlert.Enabled,
 			AlertOnFailure:       cfg.GRPCAlert.OnFailure,

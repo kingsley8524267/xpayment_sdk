@@ -211,8 +211,7 @@ func testSignerAndVerifier(t *testing.T, audience string) (*servicejwt.SignerRun
 	if err := os.WriteFile(path, raw, 0o600); err != nil {
 		t.Fatalf("write RSA key: %v", err)
 	}
-	runtime, err := servicejwt.NewSignerRuntime(servicejwt.SignerFileConfig{
-		ServiceName:          "gateway",
+	runtime, err := servicejwt.NewSignerRuntime("gateway", servicejwt.SignerFileConfig{
 		Issuer:               servicejwt.DefaultIssuer,
 		KeyID:                "gateway-v1",
 		PrivateKeyFile:       path,
