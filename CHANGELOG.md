@@ -1,3 +1,14 @@
+## [v2026.07.31] - 2026-07-31
+
+### Added
+
+- feat(client): add connector readiness and runtime alerts (0ea2202)
+
+### Changed
+
+- refactor: simplify canonical payment client config (7af290a)
+
+
 ## [v2026.07.28.1] - 2026-07-28
 
 ### Changed
