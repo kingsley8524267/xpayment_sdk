@@ -1,3 +1,10 @@
+## [v2026.08.27] - 2026-08-27
+
+### Added
+
+- feat: expose managed client lifecycle (233cbd0)
+
+
 ## [v2026.07.31] - 2026-07-31
 
 ### Added
