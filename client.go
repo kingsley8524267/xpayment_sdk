@@ -63,10 +63,19 @@ func NewClient(cfg Config) (Client, error) {
 		c.managed = managed
 		if managed != nil && managed.Conn() != nil {
 			c.grpc = pb.NewPaymentServiceClient(managed.Conn())
-			managed.StartMonitor(context.Background())
 		}
 	}
 	return c, nil
+}
+
+// Run owns the optional gRPC connection monitor for the lifetime of ctx.
+// HTTP-only clients simply block until cancellation.
+func (c *client) Run(ctx context.Context) error {
+	if c == nil || c.managed == nil {
+		<-ctx.Done()
+		return ctx.Err()
+	}
+	return c.managed.Run(ctx)
 }
 
 func (c *client) CreatePaymentOrder(ctx context.Context, req CreatePaymentOrderRequest) (*PaymentOrder, error) {
