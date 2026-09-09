@@ -1,3 +1,11 @@
+## [v2026.09.09] - 2026-09-09
+
+### Changed
+
+- test(sdk): use neutral service fixtures (01c05e7)
+- refactor(tenant): canonicalize payment SDK terminology (0259f33)
+
+
 ## [v2026.08.27] - 2026-08-27
 
 ### Added
