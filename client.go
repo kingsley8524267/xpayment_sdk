@@ -7,19 +7,33 @@ import (
 	"strings"
 	"time"
 
-	"foundation/integration/grpcx"
+	"foundation/runtime/connmgrx/driver/grpcx"
 	pb "xpayment-sdk/proto"
 )
 
 type client struct {
-	cfg     Config
-	managed *grpcx.ManagedClient
-	grpc    pb.PaymentServiceClient
-	http    *httpClient
-	timeout time.Duration
+	cfg      Config
+	managed  *grpcx.ManagedClient
+	borrowed bool
+	grpc     pb.PaymentServiceClient
+	http     *httpClient
+	timeout  time.Duration
 }
 
 func NewClient(cfg Config) (Client, error) {
+	return newClient(cfg, nil, false)
+}
+
+// NewClientWithManaged borrows the named transport; its monitor and final
+// shutdown remain with the process Connection Manager.
+func NewClientWithManaged(cfg Config, managed *grpcx.ManagedClient) (Client, error) {
+	if managed == nil || managed.Conn() == nil {
+		return nil, fmt.Errorf("borrowed xpayment transport required")
+	}
+	return newClient(cfg, managed, true)
+}
+
+func newClient(cfg Config, managed *grpcx.ManagedClient, borrowed bool) (Client, error) {
 	cfg.HTTPBaseURL = strings.TrimRight(strings.TrimSpace(cfg.HTTPBaseURL), "/")
 	if cfg.Endpoint.Mode == "" && cfg.HTTPBaseURL == "" {
 		return nil, fmt.Errorf("xpayment sdk requires grpc address or http base url")
@@ -33,30 +47,18 @@ func NewClient(cfg Config) (Client, error) {
 		timeout = defaultTimeout
 	}
 	c := &client{
-		cfg:     cfg,
-		http:    newHTTPClient(cfg.HTTPBaseURL, &http.Client{Timeout: timeout}, tokenSource),
-		timeout: timeout,
+		borrowed: borrowed,
+		cfg:      cfg,
+		http:     newHTTPClient(cfg.HTTPBaseURL, &http.Client{Timeout: timeout}, tokenSource),
+		timeout:  timeout,
 	}
 	if cfg.Endpoint.Mode != "" {
-		managed, err := grpcx.NewManagedClient(grpcx.ClientConfig{
-			Enabled:              true,
-			Endpoint:             cfg.Endpoint,
-			TimeoutSecs:          int(timeout.Seconds()),
-			MonitorEnabled:       cfg.GRPCMonitor.Enabled,
-			AlertEnabled:         cfg.GRPCAlert.Enabled,
-			AlertOnFailure:       cfg.GRPCAlert.OnFailure,
-			AlertOnRecovery:      cfg.GRPCAlert.OnRecovery,
-			AlertAfterFailures:   cfg.GRPCAlert.AfterFailures,
-			AlertCooldownSecs:    cfg.GRPCAlert.CooldownSecs,
-			Reconnect:            cfg.GRPCReconnect,
-			ReadinessMode:        cfg.ReadinessMode,
-			Readiness:            cfg.Readiness,
-			Alerts:               cfg.Alerts,
-			HTTPFallbackReadyURL: strings.TrimRight(cfg.HTTPBaseURL, "/") + "/ready",
-			ServiceJWT:           cfg.ServiceJWT,
-			ServiceJWTSigner:     cfg.ServiceJWTSigner,
-			Discovery:            cfg.Discovery,
-		})
+		profile := cfg.TransportProfile()
+		if borrowed {
+			err = managed.ValidateProfile(profile)
+		} else {
+			managed, err = grpcx.NewManagedClient(profile)
+		}
 		if err != nil {
 			return nil, err
 		}
@@ -71,7 +73,7 @@ func NewClient(cfg Config) (Client, error) {
 // Run owns the optional gRPC connection monitor for the lifetime of ctx.
 // HTTP-only clients simply block until cancellation.
 func (c *client) Run(ctx context.Context) error {
-	if c == nil || c.managed == nil {
+	if c == nil || c.managed == nil || c.borrowed {
 		<-ctx.Done()
 		return ctx.Err()
 	}
@@ -236,7 +238,7 @@ func (c *client) ListAvailablePaymentChannels(ctx context.Context, req ListAvail
 }
 
 func (c *client) Close() error {
-	if c == nil || c.managed == nil {
+	if c == nil || c.managed == nil || c.borrowed {
 		return nil
 	}
 	return c.managed.Close()
@@ -260,4 +262,33 @@ func firstNonEmpty(values ...string) string {
 		}
 	}
 	return ""
+}
+
+// TransportProfile preserves the exact authenticated SDK configuration for
+// process-scoped named transport construction.
+func (cfg Config) TransportProfile() grpcx.ClientConfig {
+	cfg.HTTPBaseURL = strings.TrimRight(strings.TrimSpace(cfg.HTTPBaseURL), "/")
+	timeout := cfg.Timeout
+	if timeout <= 0 {
+		timeout = defaultTimeout
+	}
+	return grpcx.ClientConfig{
+		Enabled:              true,
+		Endpoint:             cfg.Endpoint,
+		TimeoutSecs:          int(timeout.Seconds()),
+		MonitorEnabled:       cfg.GRPCMonitor.Enabled,
+		AlertEnabled:         cfg.GRPCAlert.Enabled,
+		AlertOnFailure:       cfg.GRPCAlert.OnFailure,
+		AlertOnRecovery:      cfg.GRPCAlert.OnRecovery,
+		AlertAfterFailures:   cfg.GRPCAlert.AfterFailures,
+		AlertCooldownSecs:    cfg.GRPCAlert.CooldownSecs,
+		Reconnect:            cfg.GRPCReconnect,
+		ReadinessMode:        cfg.ReadinessMode,
+		Readiness:            cfg.Readiness,
+		Alerts:               cfg.Alerts,
+		HTTPFallbackReadyURL: strings.TrimRight(cfg.HTTPBaseURL, "/") + "/ready",
+		ServiceJWT:           cfg.ServiceJWT,
+		ServiceJWTSigner:     cfg.ServiceJWTSigner,
+		Discovery:            cfg.Discovery,
+	}
 }

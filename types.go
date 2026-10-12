@@ -2,11 +2,12 @@ package xpaymentsdk
 
 import (
 	"context"
+	"foundation/runtime/connmgrx/driver/etcdx"
 	"time"
 
 	"foundation/http/security/servicejwt"
-	"foundation/integration/grpcx"
 	"foundation/runtime/alerts"
+	"foundation/runtime/connmgrx/driver/grpcx"
 	"foundation/runtime/readiness"
 )
 
@@ -25,7 +26,7 @@ type Config struct {
 	Timeout          time.Duration
 	ServiceJWT       servicejwt.ClientConfig
 	ServiceJWTSigner *servicejwt.SignerRuntime
-	Discovery        *grpcx.DiscoveryRuntime
+	Discovery        *etcdx.DiscoveryRuntime
 	GRPCMonitor      grpcx.MonitorConfig
 	GRPCAlert        grpcx.AlertConfig
 	GRPCReconnect    grpcx.ReconnectConfig

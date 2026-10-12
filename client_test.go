@@ -7,6 +7,7 @@ import (
 	"crypto/x509"
 	"encoding/json"
 	"encoding/pem"
+	"foundation/runtime/connmgrx/driver/etcdx"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -15,10 +16,12 @@ import (
 	"time"
 
 	"foundation/http/security/servicejwt"
+	"foundation/runtime/connmgrx/driver/grpcx"
 	pb "xpayment-sdk/proto"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/connectivity"
 	"google.golang.org/grpc/status"
 )
 
@@ -241,6 +244,47 @@ func createFixture() CreatePaymentOrderRequest {
 		OrderAmount: 10, OrderCurrency: "USD", PaymentCurrency: "CNY", ChannelCode: "alipay", IdempotencyKey: "idem-1",
 		SuccessReturnURL: "https://console.example.com/wallet",
 		Metadata:         JSONMap{"source": "test"},
+	}
+}
+
+func TestBorrowedManagedClientDoesNotRunOrCloseTransport(t *testing.T) {
+	discovery, err := etcdx.NewDiscoveryRuntime(etcdx.DiscoveryConfig{}, []string{"127.0.0.0/8"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer discovery.Close()
+	disabled := false
+	cfg := Config{Endpoint: grpcx.EndpointConfig{Mode: grpcx.EndpointModeStatic, Address: "127.0.0.1:1", ServiceName: "xpayment"}, Timeout: time.Second, ServiceJWT: servicejwt.ClientConfig{Audience: "xpayment-control-plane"}, ServiceJWTSigner: testSignerRuntime(t), Discovery: discovery, ReadinessMode: "advisory", GRPCMonitor: grpcx.MonitorConfig{Enabled: &disabled}}
+	profile := grpcx.ClientConfig{Enabled: true, Endpoint: cfg.Endpoint, TimeoutSecs: 1, ServiceJWT: cfg.ServiceJWT, ServiceJWTSigner: cfg.ServiceJWTSigner, Discovery: discovery, ReadinessMode: cfg.ReadinessMode, MonitorEnabled: &disabled, HTTPFallbackReadyURL: "/ready"}
+	managed, err := grpcx.NewManagedClient(profile)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer managed.Close()
+	borrowed, err := NewClientWithManaged(cfg, managed)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if borrowed.(*client).managed != managed {
+		t.Fatal("physical transport replaced")
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	if err = borrowed.(*client).Run(ctx); err != context.Canceled {
+		t.Fatal(err)
+	}
+	if err = borrowed.Close(); err != nil {
+		t.Fatal(err)
+	}
+	if managed.Conn().GetState() == connectivity.Shutdown {
+		t.Fatal("borrower closed physical transport")
+	}
+	if err = managed.Run(ctx); err != context.Canceled {
+		t.Fatal("borrower already ran monitor", err)
+	}
+	cfg.ServiceJWT.Audience = "different-audience"
+	if _, err = NewClientWithManaged(cfg, managed); err == nil {
+		t.Fatal("incompatible audience accepted")
 	}
 }
 
