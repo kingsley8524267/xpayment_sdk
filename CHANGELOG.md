@@ -1,3 +1,10 @@
+## [v2026.10.13] - 2026-10-13
+
+### Changed
+
+- refactor(client): borrow named grpcx managed transport (b3c51a5)
+
+
 ## [v2026.09.09] - 2026-09-09
 
 ### Changed
