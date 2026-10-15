@@ -1,3 +1,10 @@
+## [v2026.10.15] - 2026-10-15
+
+### Changed
+
+- refactor(client): adopt Account payment contracts (40a2060)
+
+
 ## [v2026.10.13] - 2026-10-13
 
 ### Changed
