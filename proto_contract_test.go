@@ -13,7 +13,7 @@ import (
 	"google.golang.org/protobuf/reflect/protodesc"
 )
 
-const paymentWireDescriptorSHA256 = "39b51a4d1be3309af92f3515d9d85624017ae7c0868dd044e251d24a3cd7bf1e"
+const paymentWireDescriptorSHA256 = "b296e33e7d3455ccc55c756e009e57cdff1f9ca865c29687c4f0ebbf29007a77"
 
 func TestSDKOwnsPaymentProtoContract(t *testing.T) {
 	service := paymentv1.File_proto_payment_proto.Services().ByName("PaymentService")

@@ -21,8 +21,8 @@ message CreatePaymentOrderRequest {
   reserved "settlement_currency", "order_exchange_rate", "payment_exchange_rate", "provider", "channel_id", "merchant_account_id", "callback_base_url";
   string merchant_code = 1;
   string merchant_order_id = 2;
-  // payer_user_id is optional payer/actor metadata; tenant_id is the order owner.
-  string payer_user_id = 3;
+  // payer_account_id is optional payer/actor metadata; tenant_id is the order owner.
+  string payer_account_id = 3;
   double order_amount = 4;
   string order_currency = 5;
   string payment_currency = 7;
@@ -58,8 +58,8 @@ message ListPaymentOrdersRequest {
   int32 page = 1;
   int32 page_size = 2;
   string merchant_code = 3;
-  // payer_user_id filters optional payer/actor metadata, not owner scope.
-  string payer_user_id = 4;
+  // payer_account_id filters optional payer/actor metadata, not owner scope.
+  string payer_account_id = 4;
   string status = 5;
   string tenant_id = 6;
 }
@@ -106,8 +106,8 @@ message PaymentOrderResponse {
   string payment_no = 2;
   string merchant_code = 3;
   string merchant_order_id = 4;
-  // payer_user_id is optional payer/actor metadata; tenant_id is the order owner.
-  string payer_user_id = 5;
+  // payer_account_id is optional payer/actor metadata; tenant_id is the order owner.
+  string payer_account_id = 5;
   double order_amount = 6;
   string order_currency = 7;
   double settlement_amount = 8;

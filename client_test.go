@@ -240,7 +240,7 @@ func testSignerAndVerifier(t *testing.T, audience string) (*servicejwt.SignerRun
 
 func createFixture() CreatePaymentOrderRequest {
 	return CreatePaymentOrderRequest{
-		MerchantCode: "example-wallet", MerchantOrderID: "m1", TenantID: "tenant-550e8400-e29b-41d4-a716-446655440000", PayerUserID: "550e8400-e29b-41d4-a716-446655440000",
+		MerchantCode: "example-wallet", MerchantOrderID: "m1", TenantID: "tenant-550e8400-e29b-41d4-a716-446655440000", PayerAccountID: "550e8400-e29b-41d4-a716-446655440000",
 		OrderAmount: 10, OrderCurrency: "USD", PaymentCurrency: "CNY", ChannelCode: "alipay", IdempotencyKey: "idem-1",
 		SuccessReturnURL: "https://console.example.com/wallet",
 		Metadata:         JSONMap{"source": "test"},
@@ -290,7 +290,7 @@ func TestBorrowedManagedClientDoesNotRunOrCloseTransport(t *testing.T) {
 
 func orderFixture() PaymentOrder {
 	return PaymentOrder{
-		ID: 1, PaymentNo: "P1", MerchantCode: "example-wallet", MerchantOrderID: "m1", TenantID: "tenant-550e8400-e29b-41d4-a716-446655440000", PayerUserID: "550e8400-e29b-41d4-a716-446655440000",
+		ID: 1, PaymentNo: "P1", MerchantCode: "example-wallet", MerchantOrderID: "m1", TenantID: "tenant-550e8400-e29b-41d4-a716-446655440000", PayerAccountID: "550e8400-e29b-41d4-a716-446655440000",
 		OrderAmount: 10, OrderCurrency: "USD", SettlementAmount: 10, SettlementCurrency: "USD", PaymentAmount: 72,
 		PaymentCurrency: "CNY", OrderExchangeRate: 1, PaymentExchangeRate: 7.2, Provider: "mock", ChannelCode: "alipay",
 		ChannelID: 2, MerchantAccountID: 3, ProviderPaymentID: "provider-1", CheckoutURL: "https://pay.test/checkout",
@@ -300,7 +300,7 @@ func orderFixture() PaymentOrder {
 
 func protoOrderFixture() *pb.PaymentOrderResponse {
 	return &pb.PaymentOrderResponse{
-		Id: 1, PaymentNo: "P1", MerchantCode: "example-wallet", MerchantOrderId: "m1", TenantId: "tenant-550e8400-e29b-41d4-a716-446655440000", PayerUserId: "550e8400-e29b-41d4-a716-446655440000",
+		Id: 1, PaymentNo: "P1", MerchantCode: "example-wallet", MerchantOrderId: "m1", TenantId: "tenant-550e8400-e29b-41d4-a716-446655440000", PayerAccountId: "550e8400-e29b-41d4-a716-446655440000",
 		OrderAmount: 10, OrderCurrency: "USD", SettlementAmount: 10, SettlementCurrency: "USD", PaymentAmount: 72,
 		PaymentCurrency: "CNY", OrderExchangeRate: 1, PaymentExchangeRate: 7.2, Provider: "mock", ChannelCode: "alipay",
 		ChannelId: 2, MerchantAccountId: 3, ProviderPaymentId: "provider-1", CheckoutUrl: "https://pay.test/checkout",

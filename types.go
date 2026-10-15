@@ -56,8 +56,8 @@ type CreatePaymentOrderRequest struct {
 	MerchantOrderID string `json:"merchantOrderId"`
 	// TenantID is the tenant owner/billing boundary for the order.
 	TenantID string `json:"tenantId"`
-	// PayerUserID is optional payer/actor metadata and must not be used as owner scope.
-	PayerUserID      string  `json:"payerUserId,omitempty"`
+	// PayerAccountID is optional payer/actor metadata and must not be used as owner scope.
+	PayerAccountID   string  `json:"payerAccountId,omitempty"`
 	OrderAmount      float64 `json:"orderAmount"`
 	OrderCurrency    string  `json:"orderCurrency"`
 	PaymentCurrency  string  `json:"paymentCurrency"`
@@ -90,9 +90,9 @@ type ListPaymentOrdersRequest struct {
 	MerchantCode string
 	// TenantID filters the tenant owner/billing boundary.
 	TenantID string
-	// PayerUserID filters optional payer/actor metadata, not owner scope.
-	PayerUserID string
-	Status      string
+	// PayerAccountID filters optional payer/actor metadata, not owner scope.
+	PayerAccountID string
+	Status         string
 }
 
 type ListPaymentOrdersResponse struct {
@@ -136,8 +136,8 @@ type PaymentOrder struct {
 	MerchantOrderID string `json:"merchantOrderId"`
 	// TenantID is the tenant owner/billing boundary for the order.
 	TenantID string `json:"tenantId"`
-	// PayerUserID is optional payer/actor metadata and must not be used as owner scope.
-	PayerUserID         string  `json:"payerUserId"`
+	// PayerAccountID is optional payer/actor metadata and must not be used as owner scope.
+	PayerAccountID      string  `json:"payerAccountId"`
 	OrderAmount         float64 `json:"orderAmount"`
 	OrderCurrency       string  `json:"orderCurrency"`
 	SettlementAmount    float64 `json:"settlementAmount"`

@@ -25,8 +25,8 @@ type CreatePaymentOrderRequest struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
 	MerchantCode    string                 `protobuf:"bytes,1,opt,name=merchant_code,json=merchantCode,proto3" json:"merchant_code,omitempty"`
 	MerchantOrderId string                 `protobuf:"bytes,2,opt,name=merchant_order_id,json=merchantOrderId,proto3" json:"merchant_order_id,omitempty"`
-	// payer_user_id is optional payer/actor metadata; tenant_id is the order owner.
-	PayerUserId      string  `protobuf:"bytes,3,opt,name=payer_user_id,json=payerUserId,proto3" json:"payer_user_id,omitempty"`
+	// payer_account_id is optional payer/actor metadata; tenant_id is the order owner.
+	PayerAccountId   string  `protobuf:"bytes,3,opt,name=payer_account_id,json=payerAccountId,proto3" json:"payer_account_id,omitempty"`
 	OrderAmount      float64 `protobuf:"fixed64,4,opt,name=order_amount,json=orderAmount,proto3" json:"order_amount,omitempty"`
 	OrderCurrency    string  `protobuf:"bytes,5,opt,name=order_currency,json=orderCurrency,proto3" json:"order_currency,omitempty"`
 	PaymentCurrency  string  `protobuf:"bytes,7,opt,name=payment_currency,json=paymentCurrency,proto3" json:"payment_currency,omitempty"`
@@ -83,9 +83,9 @@ func (x *CreatePaymentOrderRequest) GetMerchantOrderId() string {
 	return ""
 }
 
-func (x *CreatePaymentOrderRequest) GetPayerUserId() string {
+func (x *CreatePaymentOrderRequest) GetPayerAccountId() string {
 	if x != nil {
-		return x.PayerUserId
+		return x.PayerAccountId
 	}
 	return ""
 }
@@ -367,12 +367,12 @@ type ListPaymentOrdersRequest struct {
 	Page         int32                  `protobuf:"varint,1,opt,name=page,proto3" json:"page,omitempty"`
 	PageSize     int32                  `protobuf:"varint,2,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
 	MerchantCode string                 `protobuf:"bytes,3,opt,name=merchant_code,json=merchantCode,proto3" json:"merchant_code,omitempty"`
-	// payer_user_id filters optional payer/actor metadata, not owner scope.
-	PayerUserId   string `protobuf:"bytes,4,opt,name=payer_user_id,json=payerUserId,proto3" json:"payer_user_id,omitempty"`
-	Status        string `protobuf:"bytes,5,opt,name=status,proto3" json:"status,omitempty"`
-	TenantId      string `protobuf:"bytes,6,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	// payer_account_id filters optional payer/actor metadata, not owner scope.
+	PayerAccountId string `protobuf:"bytes,4,opt,name=payer_account_id,json=payerAccountId,proto3" json:"payer_account_id,omitempty"`
+	Status         string `protobuf:"bytes,5,opt,name=status,proto3" json:"status,omitempty"`
+	TenantId       string `protobuf:"bytes,6,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *ListPaymentOrdersRequest) Reset() {
@@ -426,9 +426,9 @@ func (x *ListPaymentOrdersRequest) GetMerchantCode() string {
 	return ""
 }
 
-func (x *ListPaymentOrdersRequest) GetPayerUserId() string {
+func (x *ListPaymentOrdersRequest) GetPayerAccountId() string {
 	if x != nil {
-		return x.PayerUserId
+		return x.PayerAccountId
 	}
 	return ""
 }
@@ -813,8 +813,8 @@ type PaymentOrderResponse struct {
 	PaymentNo       string                 `protobuf:"bytes,2,opt,name=payment_no,json=paymentNo,proto3" json:"payment_no,omitempty"`
 	MerchantCode    string                 `protobuf:"bytes,3,opt,name=merchant_code,json=merchantCode,proto3" json:"merchant_code,omitempty"`
 	MerchantOrderId string                 `protobuf:"bytes,4,opt,name=merchant_order_id,json=merchantOrderId,proto3" json:"merchant_order_id,omitempty"`
-	// payer_user_id is optional payer/actor metadata; tenant_id is the order owner.
-	PayerUserId         string  `protobuf:"bytes,5,opt,name=payer_user_id,json=payerUserId,proto3" json:"payer_user_id,omitempty"`
+	// payer_account_id is optional payer/actor metadata; tenant_id is the order owner.
+	PayerAccountId      string  `protobuf:"bytes,5,opt,name=payer_account_id,json=payerAccountId,proto3" json:"payer_account_id,omitempty"`
 	OrderAmount         float64 `protobuf:"fixed64,6,opt,name=order_amount,json=orderAmount,proto3" json:"order_amount,omitempty"`
 	OrderCurrency       string  `protobuf:"bytes,7,opt,name=order_currency,json=orderCurrency,proto3" json:"order_currency,omitempty"`
 	SettlementAmount    float64 `protobuf:"fixed64,8,opt,name=settlement_amount,json=settlementAmount,proto3" json:"settlement_amount,omitempty"`
@@ -899,9 +899,9 @@ func (x *PaymentOrderResponse) GetMerchantOrderId() string {
 	return ""
 }
 
-func (x *PaymentOrderResponse) GetPayerUserId() string {
+func (x *PaymentOrderResponse) GetPayerAccountId() string {
 	if x != nil {
-		return x.PayerUserId
+		return x.PayerAccountId
 	}
 	return ""
 }
@@ -1065,11 +1065,11 @@ var File_proto_payment_proto protoreflect.FileDescriptor
 const file_proto_payment_proto_rawDesc = "" +
 	"\n" +
 	"\x13proto/payment.proto\x12\n" +
-	"payment.v1\"\xea\x04\n" +
+	"payment.v1\"\xf0\x04\n" +
 	"\x19CreatePaymentOrderRequest\x12#\n" +
 	"\rmerchant_code\x18\x01 \x01(\tR\fmerchantCode\x12*\n" +
-	"\x11merchant_order_id\x18\x02 \x01(\tR\x0fmerchantOrderId\x12\"\n" +
-	"\rpayer_user_id\x18\x03 \x01(\tR\vpayerUserId\x12!\n" +
+	"\x11merchant_order_id\x18\x02 \x01(\tR\x0fmerchantOrderId\x12(\n" +
+	"\x10payer_account_id\x18\x03 \x01(\tR\x0epayerAccountId\x12!\n" +
 	"\forder_amount\x18\x04 \x01(\x01R\vorderAmount\x12%\n" +
 	"\x0eorder_currency\x18\x05 \x01(\tR\rorderCurrency\x12)\n" +
 	"\x10payment_currency\x18\a \x01(\tR\x0fpaymentCurrency\x12!\n" +
@@ -1094,12 +1094,12 @@ const file_proto_payment_proto_rawDesc = "" +
 	"$CheckPaymentOrderByPaymentNoResponse\x126\n" +
 	"\x05order\x18\x01 \x01(\v2 .payment.v1.PaymentOrderResponseR\x05order\x12\x16\n" +
 	"\x06result\x18\x02 \x01(\tR\x06result\x12(\n" +
-	"\x10next_eligible_at\x18\x03 \x01(\tR\x0enextEligibleAt\"\xc9\x01\n" +
+	"\x10next_eligible_at\x18\x03 \x01(\tR\x0enextEligibleAt\"\xcf\x01\n" +
 	"\x18ListPaymentOrdersRequest\x12\x12\n" +
 	"\x04page\x18\x01 \x01(\x05R\x04page\x12\x1b\n" +
 	"\tpage_size\x18\x02 \x01(\x05R\bpageSize\x12#\n" +
-	"\rmerchant_code\x18\x03 \x01(\tR\fmerchantCode\x12\"\n" +
-	"\rpayer_user_id\x18\x04 \x01(\tR\vpayerUserId\x12\x16\n" +
+	"\rmerchant_code\x18\x03 \x01(\tR\fmerchantCode\x12(\n" +
+	"\x10payer_account_id\x18\x04 \x01(\tR\x0epayerAccountId\x12\x16\n" +
 	"\x06status\x18\x05 \x01(\tR\x06status\x12\x1b\n" +
 	"\ttenant_id\x18\x06 \x01(\tR\btenantId\"\x9a\x01\n" +
 	"\x19ListPaymentOrdersResponse\x126\n" +
@@ -1130,14 +1130,14 @@ const file_proto_payment_proto_rawDesc = "" +
 	"J\x04\b\f\x10\rJ\x04\b\x0f\x10\x10J\x04\b\x10\x10\x11J\x04\b\x11\x10\x12J\x04\b\x12\x10\x13R\bproviderR\n" +
 	"channel_idR\x13merchant_account_idR\x04iconR\x11name_translationsR\x1acategory_name_translationsR\blogo_keyR\blogo_urlR\x0fname_locale_keyR\x13category_locale_key\"a\n" +
 	"$ListAvailablePaymentChannelsResponse\x129\n" +
-	"\x05items\x18\x01 \x03(\v2#.payment.v1.AvailablePaymentChannelR\x05items\"\x8b\b\n" +
+	"\x05items\x18\x01 \x03(\v2#.payment.v1.AvailablePaymentChannelR\x05items\"\x91\b\n" +
 	"\x14PaymentOrderResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x04R\x02id\x12\x1d\n" +
 	"\n" +
 	"payment_no\x18\x02 \x01(\tR\tpaymentNo\x12#\n" +
 	"\rmerchant_code\x18\x03 \x01(\tR\fmerchantCode\x12*\n" +
-	"\x11merchant_order_id\x18\x04 \x01(\tR\x0fmerchantOrderId\x12\"\n" +
-	"\rpayer_user_id\x18\x05 \x01(\tR\vpayerUserId\x12!\n" +
+	"\x11merchant_order_id\x18\x04 \x01(\tR\x0fmerchantOrderId\x12(\n" +
+	"\x10payer_account_id\x18\x05 \x01(\tR\x0epayerAccountId\x12!\n" +
 	"\forder_amount\x18\x06 \x01(\x01R\vorderAmount\x12%\n" +
 	"\x0eorder_currency\x18\a \x01(\tR\rorderCurrency\x12+\n" +
 	"\x11settlement_amount\x18\b \x01(\x01R\x10settlementAmount\x12/\n" +
